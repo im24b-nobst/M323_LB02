@@ -1,8 +1,8 @@
 """Feature 3: Statistik – Aggregation und benutzerdefinierte Sortierung."""
 from __future__ import annotations
 
-from functools import reduce
-from typing import Iterable
+from itertools import groupby
+from typing import Callable, Iterable
 
 from .models import Training, pace_min_pro_km
 
@@ -16,26 +16,32 @@ def wochen_schluessel(t: Training) -> str:
     return f"{jahr}-KW{woche:02d}"
 
 
+def sportart_schluessel(t: Training) -> str:
+    return t.sportart
+
+
+def gruppiere(trainings: Iterable[Training], schluessel: Callable[[Training], str]) -> dict[str, tuple[Training, ...]]:
+    """Sortiert einmal (O(n log n)) und fasst dann benachbarte gleiche Schluessel zusammen."""
+    sortiert = sorted(trainings, key=schluessel)
+    return {wert: tuple(gruppe) for wert, gruppe in groupby(sortiert, key=schluessel)}
+
+
+def summe_km(trainings: Iterable[Training]) -> float:
+    return sum(map(lambda t: t.distanz_km, trainings))
+
+
 def km_pro_woche(trainings: Iterable[Training]) -> dict[str, float]:
-    def addiere(summen: dict[str, float], t: Training) -> dict[str, float]:
-        woche = wochen_schluessel(t)
-        return {**summen, woche: summen.get(woche, 0.0) + t.distanz_km}
-    return dict(sorted(reduce(addiere, trainings, {}).items()))
+    return {woche: summe_km(gruppe) for woche, gruppe in gruppiere(trainings, wochen_schluessel).items()}
 
 
 def km_pro_sportart(trainings: Iterable[Training]) -> dict[str, float]:
-    def addiere(summen: dict[str, float], t: Training) -> dict[str, float]:
-        return {**summen, t.sportart: summen.get(t.sportart, 0.0) + t.distanz_km}
-    return reduce(addiere, trainings, {})
+    return {sportart: summe_km(gruppe) for sportart, gruppe in gruppiere(trainings, sportart_schluessel).items()}
 
 
 # --- Algorithmus Bestleistungen (in Teilfunktionen zerlegt) ---
 
 def gruppiere_nach_sportart(trainings: Iterable[Training]) -> dict[str, tuple[Training, ...]]:
-    gruppen: dict[str, tuple[Training, ...]] = {}
-    for t in trainings:
-        gruppen[t.sportart] = gruppen.get(t.sportart, ()) + (t,)
-    return gruppen
+    return gruppiere(trainings, sportart_schluessel)
 
 
 def laengstes(trainings: tuple[Training, ...]) -> Training:
