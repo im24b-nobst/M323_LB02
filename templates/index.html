@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Trainingslog</h1>
+<p>{{ anzahl }} Trainings erfasst. Die letzten 10:</p>
+<table>
+  <tr><th>Datum</th><th>Sportart</th><th>Distanz</th><th>Dauer</th><th>Pace</th></tr>
+  {% for t in trainings %}
+  <tr>
+    <td>{{ t.datum }}</td><td>{{ t.sportart }}</td>
+    <td>{{ "%.1f"|format(t.distanz_km) }} km</td><td>{{ t.dauer_min|int }} min</td>
+    <td>{{ t|pace }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5">Noch keine Trainings.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

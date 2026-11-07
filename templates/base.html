@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trainingslog</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+    nav { margin-bottom: 1.5rem; }
+    nav a { margin-right: 1rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #ddd; }
+    form.filter { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; }
+    form.filter label { display: flex; flex-direction: column; font-size: .85rem; }
+    .meldung { color: #a33; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">Start</a>
+    <a href="/trainings">Trainings</a>
+    <a href="/statistik">Statistik</a>
+    <a href="/import">Import</a>
+  </nav>
+  {% block content %}{% endblock %}
+</body>
+</html>
