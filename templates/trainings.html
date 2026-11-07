@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Trainings</h1>
+<form class="filter" method="get">
+  <label>Sportart
+    <select name="sportart">
+      <option value="">alle</option>
+      {% for s in sportarten %}
+      <option value="{{ s }}" {% if args.get('sportart') == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Von <input type="date" name="von" value="{{ args.get('von', '') }}"></label>
+  <label>Bis <input type="date" name="bis" value="{{ args.get('bis', '') }}"></label>
+  <label>Mind. km <input type="number" step="0.1" min="0" name="min_km" value="{{ args.get('min_km', '') }}"></label>
+  <label>Sortierung
+    <select name="sort">
+      <option value="datum">neueste zuerst</option>
+      <option value="distanz" {% if args.get('sort') == 'distanz' %}selected{% endif %}>laengste zuerst</option>
+    </select>
+  </label>
+  <button type="submit">Filtern</button>
+</form>
+
+<p id="zusammenfassung">{{ trainings|length }} Trainings · Total: {{ "%.1f"|format(total_km) }} km · Ø Pace: {{ durchschnitt_pace }}</p>
+
+<table>
+  <tr><th>Datum</th><th>Sportart</th><th>Distanz</th><th>Dauer</th><th>Pace</th><th>Hm</th><th>Notiz</th></tr>
+  {% for t in trainings %}
+  <tr class="training">
+    <td>{{ t.datum }}</td><td>{{ t.sportart }}</td>
+    <td>{{ "%.1f"|format(t.distanz_km) }} km</td><td>{{ t.dauer_min|int }} min</td>
+    <td>{{ t|pace }}</td><td>{{ t.hoehenmeter }}</td><td>{{ t.notiz }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7">Keine Trainings gefunden.</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

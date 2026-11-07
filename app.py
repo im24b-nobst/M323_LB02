@@ -1,9 +1,10 @@
+from datetime import date
 from pathlib import Path
 
 from flask import Flask, render_template, request
 
 from trainingslog.importer import import_csv, total_distanz
-from trainingslog.models import format_pace, pace_min_pro_km
+from trainingslog.models import SPORTARTEN, format_pace, pace_min_pro_km
 from trainingslog.storage import lade_trainings, speichere_trainings
 
 app = Flask(__name__)
@@ -41,6 +42,46 @@ def import_view():
             else:
                 meldung = f"Keine gueltigen Trainings gefunden ({verworfen} Zeilen verworfen)."
     return render_template("import.html", meldung=meldung)
+
+
+@app.route("/trainings")
+def trainings_view():
+    sportart = request.args.get("sportart", "")
+    von = request.args.get("von", "")
+    bis = request.args.get("bis", "")
+    min_km = request.args.get("min_km", "")
+    sortierung = request.args.get("sort", "datum")
+
+    resultat = []
+    for t in lade_trainings(datenpfad()):
+        if sportart and t.sportart != sportart:
+            continue
+        if von and t.datum < date.fromisoformat(von):
+            continue
+        if bis and t.datum > date.fromisoformat(bis):
+            continue
+        if min_km and t.distanz_km < float(min_km):
+            continue
+        resultat.append(t)
+
+    if sortierung == "distanz":
+        resultat.sort(key=lambda t: t.distanz_km, reverse=True)
+    else:
+        resultat.sort(key=lambda t: t.datum, reverse=True)
+
+    total_km = 0.0
+    summe_pace = 0.0
+    for t in resultat:
+        total_km += t.distanz_km
+        summe_pace += pace_min_pro_km(t)
+    if len(resultat) > 0:
+        durchschnitt_pace = format_pace(summe_pace / len(resultat))
+    else:
+        durchschnitt_pace = "-"
+
+    return render_template("trainings.html", trainings=resultat, total_km=total_km,
+                           durchschnitt_pace=durchschnitt_pace, sportarten=SPORTARTEN,
+                           args=request.args)
 
 
 if __name__ == "__main__":
