@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>CSV importieren</h1>
+<p>Erwartete Spalten: <code>datum,sportart,distanz_km,dauer_min,hoehenmeter,notiz</code></p>
+<p>Achtung: Der Import ersetzt die bisherigen Trainings.</p>
+{% if meldung %}<p class="meldung">{{ meldung }}</p>{% endif %}
+<form method="post" enctype="multipart/form-data">
+  <input type="file" name="datei" accept=".csv">
+  <button type="submit">Importieren</button>
+</form>
+{% endblock %}
