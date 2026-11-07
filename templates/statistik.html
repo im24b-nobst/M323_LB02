@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Statistik</h1>
+
+<h2>Kilometer pro Sportart</h2>
+<table>
+  <tr><th>Sportart</th><th>Total</th></tr>
+  {% for sportart, km in km_sportart|dictsort %}
+  <tr><td>{{ sportart }}</td><td>{{ "%.1f"|format(km) }} km</td></tr>
+  {% else %}<tr><td colspan="2">Keine Daten.</td></tr>{% endfor %}
+</table>
+
+<h2>Bestleistungen</h2>
+<table>
+  <tr><th>Sportart</th><th>Laengstes Training</th><th>Schnellstes Training (ab 5 km)</th></tr>
+  {% for sportart, b in bestleistungen.items() %}
+  <tr>
+    <td>{{ sportart }}</td>
+    <td>{{ "%.1f"|format(b.laengstes.distanz_km) }} km am {{ b.laengstes.datum }}</td>
+    <td>{% if b.schnellstes %}{{ b.schnellstes|pace }} am {{ b.schnellstes.datum }}{% else %}-{% endif %}</td>
+  </tr>
+  {% else %}<tr><td colspan="3">Keine Daten.</td></tr>{% endfor %}
+</table>
+
+<h2>Top 5 Laeufe (schnellste Pace)</h2>
+<table>
+  <tr><th>#</th><th>Datum</th><th>Distanz</th><th>Pace</th></tr>
+  {% for t in top %}
+  <tr><td>{{ loop.index }}</td><td>{{ t.datum }}</td><td>{{ "%.1f"|format(t.distanz_km) }} km</td><td>{{ t|pace }}</td></tr>
+  {% else %}<tr><td colspan="4">Keine Laeufe ab 5 km.</td></tr>{% endfor %}
+</table>
+
+<h2>Kilometer pro Woche</h2>
+<table>
+  <tr><th>Woche</th><th>Kilometer</th></tr>
+  {% for woche, km in km_woche.items() %}
+  <tr><td>{{ woche }}</td><td>{{ "%.1f"|format(km) }} km</td></tr>
+  {% else %}<tr><td colspan="2">Keine Daten.</td></tr>{% endfor %}
+</table>
+{% endblock %}

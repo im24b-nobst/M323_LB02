@@ -5,6 +5,7 @@ from flask import Flask, render_template, request
 from trainingslog.filters import filtere_und_sortiere, kennzahlen
 from trainingslog.importer import import_csv, total_distanz
 from trainingslog.models import SPORTARTEN, format_pace, pace_min_pro_km
+from trainingslog.statistik import bestleistungen, km_pro_sportart, km_pro_woche, top_laeufe
 from trainingslog.storage import lade_trainings, speichere_trainings
 
 app = Flask(__name__)
@@ -49,6 +50,17 @@ def trainings_view():
     trainings = filtere_und_sortiere(lade_trainings(datenpfad()), request.args)
     return render_template("trainings.html", trainings=trainings, sportarten=SPORTARTEN,
                            args=request.args, **kennzahlen(trainings))
+
+@app.route("/statistik")
+def statistik_view():
+    trainings = lade_trainings(datenpfad())
+    return render_template(
+        "statistik.html",
+        km_woche=km_pro_woche(trainings),
+        km_sportart=km_pro_sportart(trainings),
+        bestleistungen=bestleistungen(trainings),
+        top=top_laeufe(trainings),
+    )
 
 
 if __name__ == "__main__":
