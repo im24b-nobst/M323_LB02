@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from flask import Flask, render_template, request
+from flask import Flask, Response, render_template, request
 
 from trainingslog.filters import filtere_und_sortiere, kennzahlen
 from trainingslog.importer import import_csv, total_distanz
 from trainingslog.models import SPORTARTEN, format_pace, pace_min_pro_km
 from trainingslog.statistik import bestleistungen, km_pro_sportart, km_pro_woche, top_laeufe
-from trainingslog.storage import lade_trainings, speichere_trainings
+from trainingslog.storage import als_csv, lade_trainings, speichere_trainings
 
 app = Flask(__name__)
 app.config["DATA_FILE"] = Path(__file__).parent / "data" / "trainings.csv"
@@ -61,6 +61,13 @@ def statistik_view():
         bestleistungen=bestleistungen(trainings),
         top=top_laeufe(trainings),
     )
+
+
+@app.route("/export")
+def export_view():
+    trainings = filtere_und_sortiere(lade_trainings(datenpfad()), request.args)
+    return Response(als_csv(trainings), mimetype="text/csv",
+                    headers={"Content-Disposition": "attachment; filename=trainings_export.csv"})
 
 
 if __name__ == "__main__":

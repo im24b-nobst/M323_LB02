@@ -22,6 +22,8 @@
   <button type="submit">Filtern</button>
 </form>
 
+<p><a href="/export?{{ request.query_string.decode() }}">Gefilterte Trainings als CSV exportieren</a></p>
+
 <p id="zusammenfassung">{{ trainings|length }} Trainings · Total: {{ "%.1f"|format(total_km) }} km · Ø Pace: {{ durchschnitt_pace }}</p>
 
 <table>
